@@ -1,3 +1,4 @@
+from email.policy import default
 from flask import Flask, request, make_response
 from dbhelpers import run_statement
 from apihelpers import check_endpoint_info
@@ -6,6 +7,23 @@ import json
 
 # calling the Flask function which will return a value that I will be used for my API
 app = Flask(__name__)
+
+
+@app.post('/api/client')
+def add_client():
+    is_valid = check_endpoint_info(request.json, [
+                                   'email', 'first_name', 'last_name', 'image_url', 'username', 'password'])
+
+    if (is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
+    results = run_statement('CALL add_client(?,?,?,?,?,?)', [request.json.get('email'), request.json.get('first_name'), request.json.get(
+        'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password')])
+
+    if (type(results) == list):
+        return make_response(json.dumps(results[0], default=str), 200)
+    else:
+        return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
 
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
