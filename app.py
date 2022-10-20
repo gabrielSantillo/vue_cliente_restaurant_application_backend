@@ -37,7 +37,7 @@ def get_client():
                             request.args.get('client_id')])
 
     if (type(results) == list):
-        return make_response(json.dumps(results, default=str), 200)
+        return make_response(json.dumps(results[0], default=str), 200)
     else:
         return make_response(json.dumps("Sorry, an error has occurred.", default=str), 500)
 
@@ -81,6 +81,34 @@ def delete_client():
     else:
         return make_response(json.dumps("Sorry, an error has occurred.", default=str), 500)
 
+
+@app.post('/api/client-login')
+def log_in_client():
+    is_valid = check_endpoint_info(request.json, ['email', 'password'])
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
+    results = run_statement('CALL log_in_client(?,?,?)', [request.json.get('email'), request.json.get('password'), '1'])
+
+    if(type(results) == list):
+        return make_response(json.dumps(results[0], default=str), 200)
+    else:
+        return make_response(json.dumps('Sorry, an error has occurred.', default=str), 500)
+
+
+@app.delete('/api/client-login')
+def delete_client_token():
+    is_valid = check_endpoint_info(request.json, ['token'])
+
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
+    results = run_statement('CALL delete_client_token(?)', [request.json.get('token')])
+
+    if(type(results) == list):
+        return make_response(json.dumps(results[0][0], default=str), 200)
+    else:
+        return make_response(json.dumps("Sorry, an error has occured", default=str), 500)
 
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
