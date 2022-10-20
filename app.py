@@ -1,3 +1,4 @@
+from tabnanny import check
 from flask import Flask, request, make_response
 from dbhelpers import run_statement
 from apihelpers import check_endpoint_info
@@ -56,6 +57,24 @@ def patch_client():
     [request.json.get('email'), request.json.get('first_name'),
     request.json.get('last_name'), request.json.get('image_url'), request.json.get('username'), 
     request.json.get('password'), request.headers.get('token')])
+
+    if(type(results) == list):
+        return make_response(json.dumps(results, default=str), 200)
+    else:
+        return make_response(json.dumps("Sorry, an error has occurred.", default=str), 500)
+
+
+@app.delete('/api/client')
+def delete_client():
+    is_valid = check_endpoint_info(request.json, ['password'])
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
+    is_valid_header = check_endpoint_info(request.headers, ['token'])
+    if(is_valid_header != None):
+        return make_response(json.dumps(is_valid_header, default=str), 400)
+
+    results = run_statement('CALL delete_client(?,?)', [request.json.get('password'), request.headers.get('token')])
 
     if(type(results) == list):
         return make_response(json.dumps(results, default=str), 200)
