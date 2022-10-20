@@ -18,7 +18,7 @@ def post_client():
         return make_response(json.dumps(is_valid, default=str), 400)
 
     results = run_statement('CALL add_client(?,?,?,?,?,?)', [request.json.get('email'), request.json.get('first_name'), request.json.get(
-        'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password')])
+        'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password'), '123'])
 
     if (type(results) == list):
         return make_response(json.dumps(results[0], default=str), 200)
