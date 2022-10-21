@@ -24,7 +24,7 @@ def post_client():
         'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password'), token])
 
     if (type(results) == list):
-        return make_response(json.dumps(results[0], default=str), 200)
+        return make_response(json.dumps(results, default=str), 200)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
@@ -61,8 +61,10 @@ def patch_client():
     request.json.get('last_name'), request.json.get('image_url'), request.json.get('username'), 
     request.json.get('password'), request.headers.get('token')])
 
-    if(type(results) == list):
-        return make_response(json.dumps(results, default=str), 200)
+    if(type(results) == list and results[0][0] == 1):
+        return make_response(json.dumps(results[0][0], default=str), 200)
+    elif(type(results) == list and results[0][0] == 0):
+        return make_response(json.dumps("Bad request."), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred.", default=str), 500)
 
