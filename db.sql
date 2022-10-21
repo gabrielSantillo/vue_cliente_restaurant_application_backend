@@ -33,7 +33,7 @@ CREATE TABLE `client` (
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `client_un` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `client` (
 
 LOCK TABLES `client` WRITE;
 /*!40000 ALTER TABLE `client` DISABLE KEYS */;
-INSERT INTO `client` VALUES (1,'testing@test.com','Test','test','url fake','testing_test','123','2022-10-18 20:15:41'),(2,'bla@bla.com','bla','blabla','fake','bla_bla','bla123','2022-10-18 20:40:22'),(11,'testing@patch.com','patch','patch last','patch','patch','patch','2022-10-19 11:43:46');
+INSERT INTO `client` VALUES (13,'again@bla.com','bla_again','again','fake','bla_again','again123','2022-10-20 10:17:27'),(14,'test@gmail.com','bla_again','again','fake','test','123','2022-10-20 18:51:07'),(15,'testa@gmail.com','bla_again','again','fake','test','123','2022-10-20 18:53:00');
 /*!40000 ALTER TABLE `client` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,7 +62,7 @@ CREATE TABLE `client_session` (
   UNIQUE KEY `client_session_un` (`token`) USING HASH,
   KEY `client_session_FK` (`client_id`),
   CONSTRAINT `client_session_FK` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +71,7 @@ CREATE TABLE `client_session` (
 
 LOCK TABLES `client_session` WRITE;
 /*!40000 ALTER TABLE `client_session` DISABLE KEYS */;
-INSERT INTO `client_session` VALUES (8,11,'123','2022-10-19 11:43:46');
+INSERT INTO `client_session` VALUES (10,13,'123','2022-10-20 10:17:27'),(11,13,'1234','2022-10-20 14:30:40'),(19,13,'123456','2022-10-20 15:47:35'),(20,13,'1','2022-10-20 15:51:08'),(21,14,'f97f2342aae293c98ce7daa26fc081e202a52fb5b6413d3d8341603d82db4ff5','2022-10-20 18:51:07'),(22,15,'a2597b00bb8ab08e8cf57bce39ad27fb469d69f3d3d537461e132b7c90052363','2022-10-20 18:53:00'),(23,14,'303f0ce06ee04801649da76c6c20910c35a59198fffc3185ca1661d6ebc33e6a','2022-10-20 18:58:38');
 /*!40000 ALTER TABLE `client_session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -247,18 +247,70 @@ first_name_input varchar(30),
 last_name_input varchar(100),
 image_url_input varchar(1000),
 username_input varchar(30),
-password_input varchar(30))
+password_input varchar(30),
+token_input varchar(1000))
     MODIFIES SQL DATA
 begin
 	insert into client(email, first_name, last_name, image_url, username, password, created_at)
 	values (email_input, first_name_input, last_name_input, image_url_input, username_input, password_input, now());
 	insert into client_session(client_id, token, created_at)
-	values (last_insert_id(), '123', now());
+	values (last_insert_id(), token_input, now());
 
 	select c.id, convert(cs.token using utf8) 
 	from client c
 	inner join client_session cs on c.id = cs.client_id
 	order by c.id desc limit 1; 
+	commit;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `delete_client` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_client`(
+password_input varchar(30),
+token_input varchar(1000)
+)
+    MODIFIES SQL DATA
+begin
+	delete c from client c
+	inner join client_session cs on c.id = cs.client_id 
+	where cs.token = token_input and c.password = password_input;
+	select row_count();
+	commit;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `delete_client_token` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_client_token`(token_input varchar(1000))
+    MODIFIES SQL DATA
+begin
+	delete cs 
+	from client_session cs
+	where cs.token = token_input;
+	select row_count();
 	commit;
 END ;;
 DELIMITER ;
@@ -291,6 +343,7 @@ begin
 	set c.email = email_input, c.first_name = first_name_input , c.last_name = last_name_input,
 	c.image_url = image_url_input, c.username = username_input, c.password = password_input
 	where cs.token = token_input;
+	select row_count();
 	commit;
 END ;;
 DELIMITER ;
@@ -320,6 +373,40 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `log_in_client` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `log_in_client`(
+email_input varchar(100),
+password_input varchar(30),
+token_input varchar(1000))
+    MODIFIES SQL DATA
+begin	
+	
+	insert into client_session(client_id, token, created_at)
+	select c.id, token_input, now()
+	from client c
+	where c.email = email_input and c.password = password_input;
+
+	select c.id, convert(cs.token using utf8) 
+	from client c
+	inner join client_session cs on c.id = cs.client_id
+	where c.email = email_input and c.password = password_input;
+
+	commit;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -330,4 +417,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-19 17:06:40
+-- Dump completed on 2022-10-20 19:04:18
