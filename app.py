@@ -1,4 +1,6 @@
+import secrets
 from tabnanny import check
+from tkinter import N
 from flask import Flask, request, make_response
 from dbhelpers import run_statement
 from apihelpers import check_endpoint_info
@@ -17,8 +19,9 @@ def post_client():
     if (is_valid != None):
         return make_response(json.dumps(is_valid, default=str), 400)
 
+    token = secrets.token_hex(nbytes=None)
     results = run_statement('CALL add_client(?,?,?,?,?,?,?)', [request.json.get('email'), request.json.get('first_name'), request.json.get(
-        'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password'), '123'])
+        'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password'), token])
 
     if (type(results) == list):
         return make_response(json.dumps(results[0], default=str), 200)
@@ -88,12 +91,15 @@ def log_in_client():
     if(is_valid != None):
         return make_response(json.dumps(is_valid, default=str), 400)
 
-    results = run_statement('CALL log_in_client(?,?,?)', [request.json.get('email'), request.json.get('password'), '1'])
+    token = secrets.token_hex(nbytes=None)
+    results = run_statement('CALL log_in_client(?,?,?)', [request.json.get('email'), request.json.get('password'), token])
 
-    if(type(results) == list):
+    if(type(results) == list and len(results) != 0):
         return make_response(json.dumps(results[0], default=str), 200)
+    elif(type(results) == list and len(results) == 0):
+        return make_response(json.dumps("Bad login attempt. Your password or/and email are wrong."), 400)
     else:
-        return make_response(json.dumps('Sorry, an error has occurred.', default=str), 500)
+        return make_response(json.dumps('Sorry, an error has occurred.'), 500)
 
 
 @app.delete('/api/client-login')
