@@ -3,7 +3,7 @@ from tabnanny import check
 from tkinter import N
 from flask import Flask, request, make_response
 from dbhelpers import run_statement
-from apihelpers import check_endpoint_info
+from apihelpers import check_endpoint_info, check_data_sent
 from dbcreds import production_mode
 import json
 
@@ -47,19 +47,17 @@ def get_client():
 
 @app.patch('/api/client')
 def patch_client():
-    is_valid = check_endpoint_info(request.json, [
-                                   'email', 'first_name', 'last_name', 'image_url', 'username', 'password'])
-    if (is_valid != None):
-        return make_response(json.dumps(is_valid, default=str), 400)
 
-    is_valid_header = check_endpoint_info(request.headers, ['token'])
-    if(is_valid_header != None):
-        return make_response(json.dumps(is_valid_header, default=str), 400)
+    client_info = run_statement('CALL get_client_by_token(?)', [request.headers.get('token')])
+
+
+    update_info_client = check_data_sent(request.json, [
+                                   'email', 'first_name', 'last_name', 'image_url', 'username', 'password'], client_info[0])
 
     results = run_statement('CALL edit_client(?,?,?,?,?,?,?)',
-    [request.json.get('email'), request.json.get('first_name'),
-    request.json.get('last_name'), request.json.get('image_url'), request.json.get('username'), 
-    request.json.get('password'), request.headers.get('token')])
+    [update_info_client['email'], update_info_client['first_name'],
+    update_info_client['last_name'], update_info_client['image_url'], update_info_client['username'], 
+    update_info_client['password'], request.headers.get('token')])
 
     if(type(results) == list and results[0][0] == 1):
         return make_response(json.dumps(results[0][0], default=str), 200)
