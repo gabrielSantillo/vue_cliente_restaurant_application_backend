@@ -79,8 +79,10 @@ def delete_client():
 
     results = run_statement('CALL delete_client(?,?)', [request.json.get('password'), request.headers.get('token')])
 
-    if(type(results) == list):
-        return make_response(json.dumps(results, default=str), 200)
+    if(type(results) == list and results[0][0] == 1):
+        return make_response(json.dumps(results[0][0], default=str), 200)
+    elif(type(results) == list and results[0][0] == 0):
+        return make_response(json.dumps("Bad request."), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred.", default=str), 500)
 
