@@ -1,3 +1,4 @@
+from uuid import uuid4
 from flask import request, make_response
 from apihelpers import check_endpoint_info, check_data_sent
 import secrets
@@ -13,10 +14,11 @@ def post():
         return make_response(json.dumps(is_valid, default=str), 400)
 
     token = secrets.token_hex(nbytes=None)
+    salt = uuid4().hex
 
-    results = run_statement('CALL add_restaurant(?,?,?,?,?,?,?,?,?,?)', [request.json.get('email'), request.json.get('name'),  request.json.get('address'),  request.json.get('phone_number'), request.json.get('bio'),
+    results = run_statement('CALL add_restaurant(?,?,?,?,?,?,?,?,?,?,?)', [request.json.get('email'), request.json.get('name'),  request.json.get('address'),  request.json.get('phone_number'), request.json.get('bio'),
     request.json.get('city'),  request.json.get('profile_url'),  request.json.get('banner_url'),
-    request.json.get('password'), token])
+    request.json.get('password'), token, salt])
 
     if (type(results) == list):
         return make_response(json.dumps(results[0], default=str), 200)
