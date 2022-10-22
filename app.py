@@ -1,11 +1,11 @@
+from http import client
 import secrets
-from tabnanny import check
-from tkinter import N
 from flask import Flask, request, make_response
 from dbhelpers import run_statement
 from apihelpers import check_endpoint_info, check_data_sent
 from dbcreds import production_mode
 import json
+import endpoints
 
 # calling the Flask function which will return a value that I will be used for my API
 app = Flask(__name__)
@@ -13,20 +13,7 @@ app = Flask(__name__)
 
 @app.post('/api/client')
 def post_client():
-    is_valid = check_endpoint_info(request.json, [
-                                   'email', 'first_name', 'last_name', 'image_url', 'username', 'password'])
-
-    if (is_valid != None):
-        return make_response(json.dumps(is_valid, default=str), 400)
-
-    token = secrets.token_hex(nbytes=None)
-    results = run_statement('CALL add_client(?,?,?,?,?,?,?)', [request.json.get('email'), request.json.get('first_name'), request.json.get(
-        'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password'), token])
-
-    if (type(results) == list):
-        return make_response(json.dumps(results, default=str), 200)
-    else:
-        return make_response(json.dumps("Sorry, an error has occurred."), 500)
+    return endpoints.client.post()
 
 
 @app.get('/api/client')
