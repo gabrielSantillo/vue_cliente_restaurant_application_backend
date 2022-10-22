@@ -4,7 +4,7 @@ from dbhelpers import run_statement
 from apihelpers import check_endpoint_info, check_data_sent
 from dbcreds import production_mode
 import json
-import endpoints.client
+import endpoints.client, endpoints.client_login
 
 # calling the Flask function which will return a value that I will be used for my API
 app = Flask(__name__)
@@ -32,36 +32,12 @@ def delete_client():
 
 @app.post('/api/client-login')
 def log_in_client():
-    is_valid = check_endpoint_info(request.json, ['email', 'password'])
-    if(is_valid != None):
-        return make_response(json.dumps(is_valid, default=str), 400)
-
-    token = secrets.token_hex(nbytes=None)
-    results = run_statement('CALL log_in_client(?,?,?)', [request.json.get('email'), request.json.get('password'), token])
-
-    if(type(results) == list and len(results) != 0):
-        return make_response(json.dumps(results[0], default=str), 200)
-    elif(type(results) == list and len(results) == 0):
-        return make_response(json.dumps("Bad login attempt. Your password or/and email are wrong."), 400)
-    else:
-        return make_response(json.dumps('Sorry, an error has occurred.'), 500)
+    return endpoints.client_login.post()
 
 
 @app.delete('/api/client-login')
 def delete_client_token():
-    is_valid = check_endpoint_info(request.headers, ['token'])
-
-    if(is_valid != None):
-        return make_response(json.dumps(is_valid, default=str), 400)
-
-    results = run_statement('CALL delete_client_token(?)', [request.headers.get('token')])
-
-    if(type(results) == list and results[0][0] == 1):
-        return make_response(json.dumps(results[0][0], default=str), 200)
-    elif(type(results) == list and results[0][0] == 0):
-        return make_response(json.dumps("Bad request."), 400)
-    else:
-        return make_response(json.dumps("Sorry, an error has occured", default=str), 500)
+    return endpoints.client_login.delete()
 
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
