@@ -50,6 +50,10 @@ def delete_client_token():
 def post_restaurant():
     return endpoints.restaurant.post()
 
+@app.get('/api/restaurant')
+def get_restaurant():
+    return endpoints.restaurant.get()
+
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
     print("Running in Production Mode")
