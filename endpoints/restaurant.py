@@ -37,3 +37,10 @@ def get():
         return make_response(json.dumps("Sorry, this restaurant doesn't exist"), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
+
+def patch():
+    restaurant_info = run_statement('CALL get_restaurant_by_token(?)', [request.headers('token')])
+
+    update_restaurant_info = check_data_sent(request.json, ['email', 'name', 'address', 'phone_number', 'bio', 'city', 'profile_url', 'banner_url', 'password'])
+
+    if(type(results) == list)
