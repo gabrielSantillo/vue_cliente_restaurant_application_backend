@@ -17,8 +17,8 @@ def check_data_sent(sent_data, expected_data, client_info):
     i = 0
     for data in expected_data:
         if(sent_data.get(data) == None):
-                client[data] = client_info[i]
-                i += 1
+            client[data] = client_info[i]
         else:
             client[data] = sent_data[data]
+        i += 1
     return client

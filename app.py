@@ -106,15 +106,17 @@ def log_in_client():
 
 @app.delete('/api/client-login')
 def delete_client_token():
-    is_valid = check_endpoint_info(request.json, ['token'])
+    is_valid = check_endpoint_info(request.headers, ['token'])
 
     if(is_valid != None):
         return make_response(json.dumps(is_valid, default=str), 400)
 
-    results = run_statement('CALL delete_client_token(?)', [request.json.get('token')])
+    results = run_statement('CALL delete_client_token(?)', [request.headers.get('token')])
 
-    if(type(results) == list):
+    if(type(results) == list and results[0][0] == 1):
         return make_response(json.dumps(results[0][0], default=str), 200)
+    elif(type(results) == list and results[0][0] == 0):
+        return make_response(json.dumps("Bad request."), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occured", default=str), 500)
 
