@@ -33,7 +33,7 @@ CREATE TABLE `client` (
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `client_un` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,7 @@ CREATE TABLE `client` (
 
 LOCK TABLES `client` WRITE;
 /*!40000 ALTER TABLE `client` DISABLE KEYS */;
-INSERT INTO `client` VALUES (13,'again@bla.com','bla_again','again','fake','bla_again','again123','2022-10-20 10:17:27'),(14,'test@gmail.com','bla_again','again','fake','test','123','2022-10-20 18:51:07'),(15,'testa@gmail.com','bla_again','again','fake','test','123','2022-10-20 18:53:00');
+INSERT INTO `client` VALUES (13,'again@bla.com','bla_again','again','fake','bla_again','again123','2022-10-20 10:17:27'),(17,'test3@gmail.com','bla_again','again','fake','test','123','2022-10-20 19:22:18'),(19,'test5@gmail.com','bla_again','again','fake','test','123','2022-10-20 19:23:00'),(21,'test6@gmail.com','bla_again','again','fake','test','123','2022-10-20 19:25:52'),(22,'testing456@patch.com','patch','patch last','fake url teeeeestingggggg','patch','patch','2022-10-20 19:26:20'),(23,'test70@gmail.com','bla_again','again','fake','test','123','2022-10-22 08:21:18');
 /*!40000 ALTER TABLE `client` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -62,7 +62,7 @@ CREATE TABLE `client_session` (
   UNIQUE KEY `client_session_un` (`token`) USING HASH,
   KEY `client_session_FK` (`client_id`),
   CONSTRAINT `client_session_FK` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +71,7 @@ CREATE TABLE `client_session` (
 
 LOCK TABLES `client_session` WRITE;
 /*!40000 ALTER TABLE `client_session` DISABLE KEYS */;
-INSERT INTO `client_session` VALUES (10,13,'123','2022-10-20 10:17:27'),(11,13,'1234','2022-10-20 14:30:40'),(19,13,'123456','2022-10-20 15:47:35'),(20,13,'1','2022-10-20 15:51:08'),(21,14,'f97f2342aae293c98ce7daa26fc081e202a52fb5b6413d3d8341603d82db4ff5','2022-10-20 18:51:07'),(22,15,'a2597b00bb8ab08e8cf57bce39ad27fb469d69f3d3d537461e132b7c90052363','2022-10-20 18:53:00'),(23,14,'303f0ce06ee04801649da76c6c20910c35a59198fffc3185ca1661d6ebc33e6a','2022-10-20 18:58:38');
+INSERT INTO `client_session` VALUES (11,13,'1234','2022-10-20 14:30:40'),(19,13,'123456','2022-10-20 15:47:35'),(20,13,'1','2022-10-20 15:51:08'),(25,17,'a94060ffb9edcf1d98877726d8418e64144acb7bce69dee1b3defe2c49d986ea','2022-10-20 19:22:18'),(26,19,'d58536374c838197b32837707dd7db80342c5eb476fe30d774c57a77502d786a','2022-10-20 19:23:00'),(27,21,'cfc41d590cfe6a219cdf5c002ab2081026f29f6d213b67af2ba1c5ae25e92792','2022-10-20 19:25:52'),(28,22,'beca34820e108b73e8d5ddb33230ee7c5170409d3a5b083db4785622fab3689c','2022-10-20 19:26:20'),(29,22,'e89064883cd9c543a9db5a874a898dd25810a9d247da4d64654ae7ccc553636a','2022-10-21 11:53:10'),(30,23,'e6ab8230999e9a3ea35676a721e615b9e61e2ba9f027cd4eaf098d1b6fc8b9a0','2022-10-22 08:21:18'),(31,22,'b6d57baf5c996e2f6fc976de3193f43589a8ea21cef0ed052c78dd7914358b1b','2022-10-22 08:59:05');
 /*!40000 ALTER TABLE `client_session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -256,10 +256,9 @@ begin
 	insert into client_session(client_id, token, created_at)
 	values (last_insert_id(), token_input, now());
 
-	select c.id, convert(cs.token using utf8) 
-	from client c
-	inner join client_session cs on c.id = cs.client_id
-	order by c.id desc limit 1; 
+	select cs.client_id , convert(cs.token using utf8) 
+	from client_session cs
+	where cs.id  = last_insert_id(); 
 	commit;
 END ;;
 DELIMITER ;
@@ -375,6 +374,29 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_client_by_token` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_client_by_token`(token_input varchar(1000))
+begin
+	select convert(c.email using utf8), convert(c.first_name using utf8), convert(c.last_name using utf8),
+	convert(c.image_url using utf8), convert(c.username using utf8), convert(c.password using utf8)
+	from client c
+	inner join client_session cs on c.id = cs.client_id 
+	where cs.token = token_input;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `log_in_client` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -417,4 +439,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-20 19:04:18
+-- Dump completed on 2022-10-22  9:13:36
