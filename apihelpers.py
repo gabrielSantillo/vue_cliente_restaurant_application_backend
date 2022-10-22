@@ -12,13 +12,13 @@ def check_endpoint_info(sent_data, expected_data):
             return f"The {data} argument is required."
 
 
-def check_data_sent(sent_data, expected_data, client_info):
-    client = {}
+def check_data_sent(sent_data, expected_data, user_info):
+    user = {}
     i = 0
     for data in expected_data:
         if(sent_data.get(data) == None):
-            client[data] = client_info[i]
+            user[data] = user_info[i]
         else:
-            client[data] = sent_data[data]
+            user[data] = sent_data[data]
         i += 1
-    return client
+    return user

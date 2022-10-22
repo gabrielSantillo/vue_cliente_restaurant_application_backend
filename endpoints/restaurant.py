@@ -39,8 +39,15 @@ def get():
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
 def patch():
-    restaurant_info = run_statement('CALL get_restaurant_by_token(?)', [request.headers('token')])
+    restaurant_info = run_statement('CALL get_restaurant_by_token(?)', [request.headers.get('token')])
 
-    update_restaurant_info = check_data_sent(request.json, ['email', 'name', 'address', 'phone_number', 'bio', 'city', 'profile_url', 'banner_url', 'password'])
+    update_restaurant_info = check_data_sent(request.json, ['email', 'name', 'address', 'phone_number', 'bio', 'city', 'profile_url', 'banner_url', 'password'], restaurant_info[0])
 
-    if(type(results) == list)
+    results = run_statement('CALL edit_restaurant(?,?,?,?,?,?,?,?,?,?)', [update_restaurant_info['email'], update_restaurant_info['name'], update_restaurant_info['address'], update_restaurant_info['phone_number'], update_restaurant_info['bio'], update_restaurant_info['city'], update_restaurant_info['profile_url'], update_restaurant_info['banner_url'], update_restaurant_info['password'], request.headers.get('token')])
+
+    if(type(results) == list and results[0][0] == 1):
+        return make_response(json.dumps(results[0][0], default=str), 200)
+    elif(type(results) == list and results[0][0] == 0):
+        return make_response(json.dumps("Bad request"), 400)
+    else:
+        return make_response(json.dumps("Sorry, an error has occurred"), 500)
