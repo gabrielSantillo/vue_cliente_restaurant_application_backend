@@ -21,7 +21,6 @@ def post():
 
 def delete():
     is_valid = check_endpoint_info(request.headers, ['token'])
-
     if(is_valid != None):
         return make_response(json.dumps(is_valid, default=str), 400)
 

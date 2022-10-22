@@ -66,6 +66,10 @@ def delete_restaurant():
 def login_restaurant():
     return endpoints.restaurant_login.post()
 
+@app.delete('/api/restaurant-login')
+def delete_restaurant_token():
+    return endpoints.restaurant_login.delete()
+
 
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
