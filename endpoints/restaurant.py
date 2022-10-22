@@ -19,7 +19,7 @@ def post():
     request.json.get('password'), token])
 
     if (type(results) == list):
-        return make_response(json.dumps(results, default=str), 200)
+        return make_response(json.dumps(results[0], default=str), 200)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
@@ -32,7 +32,7 @@ def get():
     results = run_statement('CALL get_restaurant(?)', [request.args.get('restaurant_id')])
 
     if(type(results) == list and len(results) > 0):
-        return make_response(json.dumps(results, default=str), 200)
+        return make_response(json.dumps(results[0], default=str), 200)
     elif(type(results) == list and len(results) == 0):
         return make_response(json.dumps("Sorry, this restaurant doesn't exist"), 400)
     else:
@@ -51,3 +51,23 @@ def patch():
         return make_response(json.dumps("Bad request"), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred"), 500)
+
+def delete():
+    is_valid = check_endpoint_info(request.json, ['password'])
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
+    is_valid_header = check_endpoint_info(request.headers, ['token'])
+    if(is_valid_header != None):
+        return make_response(json.dumps(is_valid_header, default=str), 400)
+
+    results = run_statement('CALL delete_restaurant(?,?)', [request.json.get('password'), request.headers.get('token')])
+
+    if(type(results) == list and results[0][0] == 1):
+        return make_response(json.dumps(results[0][0], default=str), 200)
+    elif(type(results) == list and results[0][0] == 0):
+        return make_response(json.dumps("Bad request."), 400)
+    else:
+        return make_response(json.dumps("Sorry, an error has occurred."), 500)
+
+

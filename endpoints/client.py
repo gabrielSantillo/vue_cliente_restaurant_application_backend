@@ -17,7 +17,7 @@ def post():
         'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password'), token])
 
     if (type(results) == list):
-        return make_response(json.dumps(results, default=str), 200)
+        return make_response(json.dumps(results[0], default=str), 200)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
