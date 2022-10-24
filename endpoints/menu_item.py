@@ -2,7 +2,6 @@ from flask import request, make_response
 from apihelpers import check_endpoint_info, check_data_sent
 import json
 from dbhelpers import run_statement
-from endpoints.client import delete
 
 def post():
     is_valid = check_endpoint_info(request.json, ['description', 'image_url',
