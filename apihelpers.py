@@ -2,9 +2,6 @@
 # expected_data taht is going to be the list of keys the endpoint requires
 # this function will return a string in case of error and None otherwise
 
-from dbhelpers import run_statement
-from flask import Flask, request, make_response
-import json
 
 def check_endpoint_info(sent_data, expected_data):
     for data in expected_data:
