@@ -101,6 +101,10 @@ def delete_menu_item():
 def client_order():
     return endpoints.client_order.post()
 
+@app.get('/api/client-order')
+def get_all_client_order():
+    return endpoints.client_order.get()
+
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
     print("Running in Production Mode")

@@ -28,4 +28,25 @@ def post():
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
-    results
+
+def get():
+    is_valid_header = check_endpoint_info(request.headers, ['token'])
+    if(is_valid_header != None):
+        return make_response(json.dumps(is_valid_header, default=str), 400)
+
+
+    is_confirmed = request.args.get('is_confirmed')
+    is_completed = request.args.get('is_complete')
+    if(is_confirmed == None and is_completed == None):
+        results = run_statement('CALL get_all_client_order(?)', [request.headers.get('token')])
+    elif(is_confirmed != None and is_completed == None):
+        results = run_statement('CALL get_all_confirmed_orders(?)', [request.headers.get('token')])
+    else:
+        results = run_statement('CALL get_all_completed_orders(?)', [request.headers.get('token')])
+
+
+    if(type(results) == list):
+        return make_response(json.dumps(results, default=str), 200)
+    else:
+        return make_response(json.dumps("Sorry, an error has occurred."), 500)
+    
