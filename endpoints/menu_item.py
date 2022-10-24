@@ -41,6 +41,10 @@ def patch():
     if(type(menu_info) == list and len(menu_info) == 0):
         return make_response(json.dumps("Wrong token."), 400)
 
+    is_valid = check_endpoint_info(request.json, ['menu_id'])
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
     update_menu_item = check_data_sent(request.json, ['menu_id', 'description', 'image_url', 'name', 'price'], menu_info[0])
 
     results = run_statement('CALL edit_menu_item(?,?,?,?,?,?)', [update_menu_item['description'], update_menu_item['image_url'], update_menu_item['name'], update_menu_item['price'], request.headers.get('token'),update_menu_item['menu_id']])
