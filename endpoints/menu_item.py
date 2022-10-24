@@ -23,3 +23,17 @@ def post():
         return make_response(json.dumps("Bad request"), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
+
+def get():
+    is_valid = check_endpoint_info(request.args, ['restaurant_id'])
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
+    results = run_statement('CALL get_menu_item(?)', [request.args.get('restaurant_id')])
+
+    if(type(results) == list and len(results) > 0):
+        return make_response(json.dumps(results[0], default=str), 200)
+    elif(type(results) == list and len(results) == 0):
+        return make_response(json.dumps("Wrong restaurant id."), 400)
+    else:
+        return make_response(json.dumps("Sorry an error has occurred"), 500)

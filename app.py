@@ -78,6 +78,10 @@ def delete_restaurant_token():
 def post_menu_item():
     return endpoints.menu_item.post()
 
+@app.get('/api/menu')
+def get_menu_item():
+    return endpoints.menu_item.get()
+
 
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
