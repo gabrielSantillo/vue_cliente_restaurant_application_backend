@@ -114,6 +114,10 @@ def get_all_client_order():
 def get_all_restaurant_order():
     return endpoints.restaurant_order.get()
 
+@app.patch('/api/restaurant-order')
+def confirm_or_complete_restaurant_order():
+    return endpoints.restaurant_order.patch()
+
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
     print("Running in Production Mode")
