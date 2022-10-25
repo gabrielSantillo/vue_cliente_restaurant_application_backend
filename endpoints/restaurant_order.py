@@ -37,5 +37,7 @@ def patch():
 
     if(type(results) == list):
         return make_response(json.dumps(results[0][0], default=str), 200)
+    elif(results.startswith("Incorrect integer value:")):
+        return make_response(json.dumps("Send true or false to confirm or complete your order."), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred"), 500)
