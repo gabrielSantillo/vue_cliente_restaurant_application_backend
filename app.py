@@ -4,7 +4,7 @@ from dbhelpers import run_statement
 from apihelpers import check_endpoint_info, check_data_sent
 from dbcreds import production_mode
 import json
-import endpoints.client, endpoints.client_login, endpoints.restaurant, endpoints.restaurant_login, endpoints.menu_item, endpoints.client_order
+import endpoints.client, endpoints.client_login, endpoints.restaurant, endpoints.restaurant_login, endpoints.menu_item, endpoints.client_order, endpoints.restaurant_order
 
 # calling the Flask function which will return a value that I will be used for my API
 app = Flask(__name__)
@@ -104,6 +104,15 @@ def client_order():
 @app.get('/api/client-order')
 def get_all_client_order():
     return endpoints.client_order.get()
+
+
+####################################
+# RESTAURANT_ORDER #
+####################################
+
+@app.get('/api/restaurant-order')
+def get_all_restaurant_order():
+    return endpoints.restaurant_order.get()
 
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
