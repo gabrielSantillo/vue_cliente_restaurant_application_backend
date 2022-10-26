@@ -137,6 +137,39 @@ INSERT INTO `order_menu_item` VALUES (1,5,3),(2,5,5);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `order_rating`
+--
+
+DROP TABLE IF EXISTS `order_rating`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `order_rating` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(10) unsigned NOT NULL,
+  `restaurant_id` int(10) unsigned NOT NULL,
+  `order_table_id` int(10) unsigned NOT NULL,
+  `rate` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_rating_FK` (`client_id`),
+  KEY `order_rating_FK_1` (`restaurant_id`),
+  KEY `order_rating_FK_2` (`order_table_id`),
+  CONSTRAINT `order_rating_FK` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_rating_FK_1` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_rating_FK_2` FOREIGN KEY (`order_table_id`) REFERENCES `order_table` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `order_rating`
+--
+
+LOCK TABLES `order_rating` WRITE;
+/*!40000 ALTER TABLE `order_rating` DISABLE KEYS */;
+INSERT INTO `order_rating` VALUES (2,25,7,5,3);
+/*!40000 ALTER TABLE `order_rating` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `order_table`
 --
 
@@ -696,7 +729,8 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_client_order`(token_input varchar(100))
 begin
-	select ot.is_complete, ot.is_confirmed, convert(mi.name using utf8), mi.price, omi.menu_item_id, ot.id
+	select ot.id, mi.restaurant_id, ot.is_confirmed, ot.is_complete, convert(mi.name using utf8), mi.price, omi.menu_item_id,
+	convert(mi.description using utf8), convert(mi.image_url using utf8)
 	from client_session cs
 	inner join order_table ot on ot.client_id = cs.client_id
 	inner join order_menu_item omi on omi.order_id = ot.id 
@@ -750,6 +784,31 @@ begin
 	inner join order_menu_item omi on omi.order_id = ot.id 
 	inner join menu_item mi on mi.id = omi.menu_item_id
 	where cs.token = token_input and ot.is_confirmed = 1;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_all_rated_orders` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_rated_orders`(token_input varchar(100))
+begin
+	select ora.order_table_id, convert(mi.name using utf8), convert(mi.image_url using utf8),
+	mi.price, convert(mi.description using utf8), mi.restaurant_id 
+	from order_rating ora
+	inner join restaurant r on r.id = ora.restaurant_id 
+	inner join menu_item mi on mi.restaurant_id = r.id
+	inner join client_session cs on ora.client_id = cs.client_id 
+	where cs.token = token_input;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -981,6 +1040,36 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `rate_order` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `rate_order`(
+restaurant_id_input int unsigned,
+order_id_input int unsigned,
+rate_input int unsigned,
+token_input varchar(100))
+    MODIFIES SQL DATA
+begin
+	insert into order_rating(client_id, restaurant_id, order_table_id, rate)
+	select cs.client_id, restaurant_id_input, order_id_input, rate_input
+	from client_session cs
+	inner join order_table ot on ot.client_id = cs.client_id 
+	where cs.token = token_input and ot.id = order_id_input and ot.is_complete = 1;
+	select row_count();
+	commit;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -991,4 +1080,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-25 13:29:12
+-- Dump completed on 2022-10-26 16:32:35
