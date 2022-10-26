@@ -1,5 +1,5 @@
 from flask import request, make_response
-from apihelpers import check_endpoint_info
+from apihelpers import check_endpoint_info, organize_response
 import json
 from dbhelpers import run_statement
 
@@ -45,8 +45,10 @@ def get():
         results = run_statement('CALL get_all_completed_orders(?)', [request.headers.get('token')])
 
 
+    better_response = organize_response(results)
+
     if(type(results) == list):
-        return make_response(json.dumps(results, default=str), 200)
+        return make_response(json.dumps(better_response, default=str), 200)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
     
