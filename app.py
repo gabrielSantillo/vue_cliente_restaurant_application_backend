@@ -127,6 +127,10 @@ def confirm_or_complete_restaurant_order():
 def rate_order():
     return endpoints.order_rating.post()
 
+@app.get('/api/rate-order')
+def get_all_rated_orders():
+    return endpoints.order_rating.get()
+
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
     print("Running in Production Mode")
