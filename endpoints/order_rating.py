@@ -40,3 +40,7 @@ def get():
         return make_response(json.dumps("Wrong token"), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
+
+# stopped here while developing the patch function
+def patch():
+    return
