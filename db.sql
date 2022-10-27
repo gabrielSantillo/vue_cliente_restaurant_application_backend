@@ -146,17 +146,14 @@ DROP TABLE IF EXISTS `order_rating`;
 CREATE TABLE `order_rating` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `client_id` int(10) unsigned NOT NULL,
-  `restaurant_id` int(10) unsigned NOT NULL,
   `order_table_id` int(10) unsigned NOT NULL,
   `rate` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `order_rating_un` (`order_table_id`),
   KEY `order_rating_FK` (`client_id`),
-  KEY `order_rating_FK_1` (`restaurant_id`),
-  KEY `order_rating_FK_2` (`order_table_id`),
   CONSTRAINT `order_rating_FK` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `order_rating_FK_1` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_rating_FK_2` FOREIGN KEY (`order_table_id`) REFERENCES `order_table` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -165,7 +162,7 @@ CREATE TABLE `order_rating` (
 
 LOCK TABLES `order_rating` WRITE;
 /*!40000 ALTER TABLE `order_rating` DISABLE KEYS */;
-INSERT INTO `order_rating` VALUES (2,25,7,5,3);
+INSERT INTO `order_rating` VALUES (3,25,5,3);
 /*!40000 ALTER TABLE `order_rating` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -802,11 +799,12 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_all_rated_orders`(token_input varchar(100))
 begin
-	select ora.order_table_id, convert(mi.name using utf8), convert(mi.image_url using utf8),
-	mi.price, convert(mi.description using utf8), mi.restaurant_id 
+	select ora.order_table_id, ot.restaurant_id, ora.rate, convert(mi.name using utf8), convert(mi.image_url using utf8),
+	mi.price, convert(mi.description using utf8), mi.id 
 	from order_rating ora
-	inner join restaurant r on r.id = ora.restaurant_id 
-	inner join menu_item mi on mi.restaurant_id = r.id
+	inner join order_table ot on ot.id = ora.order_table_id
+	inner join order_menu_item omi on omi.order_id = ot.id
+	inner join menu_item mi on mi.id = omi.menu_item_id 
 	inner join client_session cs on ora.client_id = cs.client_id 
 	where cs.token = token_input;
 END ;;
@@ -1051,14 +1049,13 @@ DELIMITER ;
 /*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `rate_order`(
-restaurant_id_input int unsigned,
 order_id_input int unsigned,
 rate_input int unsigned,
 token_input varchar(100))
     MODIFIES SQL DATA
 begin
-	insert into order_rating(client_id, restaurant_id, order_table_id, rate)
-	select cs.client_id, restaurant_id_input, order_id_input, rate_input
+	insert into order_rating(client_id, order_table_id, rate)
+	select cs.client_id, order_id_input, rate_input
 	from client_session cs
 	inner join order_table ot on ot.client_id = cs.client_id 
 	where cs.token = token_input and ot.id = order_id_input and ot.is_complete = 1;
@@ -1080,4 +1077,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-26 16:32:35
+-- Dump completed on 2022-10-26 18:05:59
