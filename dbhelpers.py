@@ -57,3 +57,10 @@ def run_statement(statement, list_of_args=[]):
     results = execute_statement(cursor, statement, list_of_args)
     close_connect(cursor)
     return results
+
+def make_dictionary(results, cursor):
+    columns = [i[0] for i in cursor.description]
+    new_results = []
+    for row in results:
+        new_results.append(dict(zip(columns, row)))
+    return new_results

@@ -41,6 +41,21 @@ def get():
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
-# stopped here while developing the patch function
+
 def patch():
-    return
+    is_valid_header = check_endpoint_info(request.headers, ['token'])
+    if(is_valid_header != None):
+        return make_response(json.dumps(is_valid_header, default=str), 400)
+
+    is_valid = check_endpoint_info(request.json, ['order_id', 'rate'])
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid, default=str), 400)
+
+    results = run_statement('CALL edit_rated_order(?,?,?)', [request.json.get('order_id'), request.json.get('rate'), request.headers.get('token')])
+
+    if(type(results) == list and results[0][0] == 1):
+        return make_response(json.dumps(results[0][0], default=str), 200)
+    elif(type(results) == list and results[0][0] == 0):
+        return make_response(json.dumps('Bad request.'), 400)
+    else:
+        return make_response(json.dumps("Sorry, an error has occurred."), 500)
