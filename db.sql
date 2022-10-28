@@ -162,7 +162,6 @@ CREATE TABLE `order_rating` (
 
 LOCK TABLES `order_rating` WRITE;
 /*!40000 ALTER TABLE `order_rating` DISABLE KEYS */;
-INSERT INTO `order_rating` VALUES (3,25,5,3);
 /*!40000 ALTER TABLE `order_rating` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -554,6 +553,32 @@ begin
 	from menu_item mi
 	inner join restaurant_session rs on rs.restaurant_id = mi.restaurant_id
 	where rs.token = token_input and mi.id = menu_id_input;
+	select row_count();
+	commit;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `delete_rated_order` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_rated_order`(
+order_id_input int unsigned,
+token_input varchar(100))
+    MODIFIES SQL DATA
+begin
+	delete ora from order_rating ora 
+	inner join client_session cs on cs.client_id = ora.client_id
+	where cs.token = token_input;
 	select row_count();
 	commit;
 END ;;
@@ -1105,4 +1130,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-27 10:32:45
+-- Dump completed on 2022-10-27 20:15:32

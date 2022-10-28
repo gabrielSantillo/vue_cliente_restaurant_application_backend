@@ -135,6 +135,10 @@ def get_all_rated_orders():
 def change_rated_order():
     return endpoints.order_rating.patch()
 
+@app.delete('/api/rate-order')
+def delete_rated_order():
+    return endpoints.order_rating.delete()
+
 # if statement to check if the production_mode variable is true, if yes, run in production mode, if not, run in testing mode
 if (production_mode):
     print("Running in Production Mode")
