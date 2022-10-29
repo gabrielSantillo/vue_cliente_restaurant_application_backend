@@ -42,21 +42,26 @@ def get():
 
 
 def patch():
-    client_info = run_statement('CALL get_client_by_token(?)', [
-                                request.headers.get('token')])
+    is_valid = check_endpoint_info(request.headers, ['token'])
+    if(is_valid != None):
+        return make_response(json.dumps(is_valid,default=str), 400)
 
-    update_info_client = check_data_sent(request.json, [
-        'email', 'first_name', 'last_name', 'image_url', 'username', 'password'], client_info[0])
 
-    results = run_statement('CALL edit_client(?,?,?,?,?,?,?)',
+    client_info = run_statement('CALL get_client_by_token(?)', [request.headers.get('token')])
+    if(type(client_info) != list or len(client_info) != 1):
+        return make_response(json.dumps(client_info, default=str), 400)
+
+    update_info_client = check_data_sent(request.json, client_info[0],
+      ['email', 'first_name', 'last_name', 'image_url', 'username', 'password'])
+
+    results = run_statement('CALL edit_client(?,?,?,?,?,?)',
                             [update_info_client['email'], update_info_client['first_name'],
-                             update_info_client['last_name'], update_info_client['image_url'], update_info_client['username'],
-                                update_info_client['password'], request.headers.get('token')])
+                             update_info_client['last_name'], update_info_client['image_url'], update_info_client['username'], request.headers.get('token')])
 
-    if (type(results) == list and results[0][0] == 1):
-        return make_response(json.dumps(results[0][0], default=str), 200)
-    elif (type(results) == list and results[0][0] == 0):
-        return make_response(json.dumps("Bad request."), 400)
+    if (type(results) == list and results[0]['row_updated'] == 1):
+        return make_response(json.dumps(results[0], default=str), 200)
+    elif (type(results) == list and results[0]['row_updated'] == 0):
+        return make_response(json.dumps(results[0], default=str), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred.", default=str), 500)
 
@@ -71,9 +76,9 @@ def delete():
 
     results = run_statement('CALL delete_client(?,?)', [request.json.get('password'), request.headers.get('token')])
 
-    if(type(results) == list and results[0][0] == 1):
-        return make_response(json.dumps(results[0][0], default=str), 200)
-    elif(type(results) == list and results[0][0] == 0):
+    if(type(results) == list and results[0]['row_updated'] == 1):
+        return make_response(json.dumps(results[0], default=str), 200)
+    elif(type(results) == list and results[0]['row_updated'] == 0):
         return make_response(json.dumps("Bad request."), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred.", default=str), 500)

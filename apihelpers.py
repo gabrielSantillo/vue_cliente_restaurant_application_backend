@@ -9,16 +9,11 @@ def check_endpoint_info(sent_data, expected_data):
             return f"The {data} argument is required."
 
 
-def check_data_sent(sent_data, expected_data, user_info):
-    user = {}
-    i = 0
+def check_data_sent(sent_data, original_data, expected_data):
     for data in expected_data:
-        if (sent_data.get(data) == None):
-            user[data] = user_info[i]
-        else:
-            user[data] = sent_data[data]
-        i += 1
-    return user
+        if(sent_data.get(data) != None):
+            original_data[data] = sent_data[data]
+    return original_data
 
 
 def organize_response(response):
