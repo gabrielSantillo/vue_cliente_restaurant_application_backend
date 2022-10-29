@@ -55,7 +55,8 @@ def run_statement(statement, list_of_args=[]):
     if (cursor == None):
         return "Connection Error"
     results = execute_statement(cursor, statement, list_of_args)
-    results = make_dictionary(results, cursor)
+    if(type(results) == list):
+        results = make_dictionary(results, cursor)
     close_connect(cursor)
     return results
 

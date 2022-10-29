@@ -54,9 +54,9 @@ def patch():
     update_info_client = check_data_sent(request.json, client_info[0],
       ['email', 'first_name', 'last_name', 'image_url', 'username', 'password'])
 
-    results = run_statement('CALL edit_client(?,?,?,?,?,?)',
+    results = run_statement('CALL edit_client(?,?,?,?,?,?,?)',
                             [update_info_client['email'], update_info_client['first_name'],
-                             update_info_client['last_name'], update_info_client['image_url'], update_info_client['username'], request.headers.get('token')])
+                             update_info_client['last_name'], update_info_client['image_url'], update_info_client['username'], update_info_client['password'], request.headers.get('token')])
 
     if (type(results) == list and results[0]['row_updated'] == 1):
         return make_response(json.dumps(results[0], default=str), 200)

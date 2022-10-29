@@ -20,8 +20,10 @@ def post():
     request.json.get('city'),  request.json.get('profile_url'),  request.json.get('banner_url'),
     request.json.get('password'), token, salt])
 
-    if (type(results) == list):
+    if (type(results) == list and len(results) > 0):
         return make_response(json.dumps(results[0], default=str), 200)
+    elif(results.startswith('Duplicate entry')):
+        return make_response(json.dumps(results, default=str), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
@@ -43,13 +45,13 @@ def get():
 def patch():
     restaurant_info = run_statement('CALL get_restaurant_by_token(?)', [request.headers.get('token')])
 
-    update_restaurant_info = check_data_sent(request.json, ['email', 'name', 'address', 'phone_number', 'bio', 'city', 'profile_url', 'banner_url', 'password'], restaurant_info[0])
+    update_restaurant_info = check_data_sent(request.json, restaurant_info[0], ['email', 'name', 'address', 'phone_number', 'bio', 'city', 'profile_url', 'banner_url', 'password'])
 
     results = run_statement('CALL edit_restaurant(?,?,?,?,?,?,?,?,?,?)', [update_restaurant_info['email'], update_restaurant_info['name'], update_restaurant_info['address'], update_restaurant_info['phone_number'], update_restaurant_info['bio'], update_restaurant_info['city'], update_restaurant_info['profile_url'], update_restaurant_info['banner_url'], update_restaurant_info['password'], request.headers.get('token')])
 
-    if(type(results) == list and results[0][0] == 1):
-        return make_response(json.dumps(results[0][0], default=str), 200)
-    elif(type(results) == list and results[0][0] == 0):
+    if(type(results) == list and results[0]['row_updated'] == 1):
+        return make_response(json.dumps(results[0], default=str), 200)
+    elif(type(results) == list and results[0]['row_updated'] == 0):
         return make_response(json.dumps("Bad request"), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred"), 500)
@@ -65,10 +67,10 @@ def delete():
 
     results = run_statement('CALL delete_restaurant(?,?)', [request.json.get('password'), request.headers.get('token')])
 
-    if(type(results) == list and results[0][0] == 1):
-        return make_response(json.dumps(results[0][0], default=str), 200)
-    elif(type(results) == list and results[0][0] == 0):
-        return make_response(json.dumps("Bad request."), 400)
+    if(type(results) == list and results[0]['row_updated'] == 1):
+        return make_response(json.dumps(results[0], default=str), 200)
+    elif(type(results) == list and results[0]['row_updated'] == 0):
+        return make_response(json.dumps(results[0], default=str), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
