@@ -60,6 +60,7 @@ def run_statement(statement, list_of_args=[]):
     close_connect(cursor)
     return results
 
+
 def make_dictionary(results, cursor):
     columns = [i[0] for i in cursor.description]
     new_results = []
