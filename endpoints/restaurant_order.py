@@ -10,8 +10,10 @@ def get():
 
     results = run_statement('CALL get_all_restaurant_order(?)', [request.headers.get('token')])
 
-    if(type(results) == list):
+    if(type(results) == list and len(results) != 0):
         return make_response(json.dumps(results, default=str), 200)
+    elif(type(results) == list and len(results) == 0):
+        return make_response(json.dumps(results, default=str), 400)
     else:
         return make_response(json.dumps("Sorry an error has occurred"), 500)
 
@@ -36,7 +38,7 @@ def patch():
         return make_response(json.dumps("You should first confirm an order, then complete it."), 400)
 
     if(type(results) == list):
-        return make_response(json.dumps(results[0][0], default=str), 200)
+        return make_response(json.dumps(results[0], default=str), 200)
     elif(results.startswith("Incorrect integer value:")):
         return make_response(json.dumps("Send true or false to confirm or complete your order."), 400)
     else:
