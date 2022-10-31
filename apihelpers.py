@@ -11,7 +11,7 @@ def check_endpoint_info(sent_data, expected_data):
 
 def check_data_sent(sent_data, original_data, expected_data):
     for data in expected_data:
-        if(sent_data.get(data) != None):
+        if (sent_data.get(data) != None):
             original_data[data] = sent_data[data]
     return original_data
 
@@ -21,7 +21,7 @@ def organize_response(response):
     ids = []
 
     for data in response:
-        if(data['id'] in ids):
+        if (data['id'] in ids):
             menu_item = {
                 'name': data['name'],
                 'price': data['price'],
@@ -29,11 +29,10 @@ def organize_response(response):
                 'description': data['description'],
                 'image_url': data['image_url']
             }
-
             item['menu_items'].append(menu_item)
         else:
             ids.append(data['id'])
-            
+
             item = {
                 'id': data['id'],
                 'restaurant_id': data['restaurant_id'],
@@ -47,31 +46,40 @@ def organize_response(response):
                     'image_url': data['image_url']
                 }]
             }
-
             orders.append(item)
 
     return orders
 
 
 def organize_rated_orders(response):
-    keys = ['order_id', 'restaurant_id', 'rate', 'name',
-            'image_url', 'price', 'description', 'item_id']
-    order = {}
-    menu_items = []
+    orders = []
+    ids = []
 
-    i = 0
     for data in response:
-        item = {}
-        for order_info in data:
-            if (i < 3):
-                order[keys[i]] = order_info
-            elif (i >= 3 and i < 8):
-                item[keys[i]] = data[i]
-            else:
-                break
-            i += 1
-        i = 3
-        menu_items.append(item)
-    order['menu_items'] = menu_items
+        if (data['order_id'] in ids):
+            menu_item = {
+                'name': data['name'],
+                'price': data['price'],
+                'menu_item_id': data['menu_item_id'],
+                'description': data['description'],
+                'image_url': data['image_url']
+            }
+            item['menu_items'].append(menu_item)
+        else:
+            ids.append(data['order_id'])
 
-    return order
+            item = {
+                'order_id': data['order_id'],
+                'restaurant_id': data['restaurant_id'],
+                'rate': data['rate'],
+                'menu_items': [{
+                    'name': data['name'],
+                    'price': data['price'],
+                    'menu_item_id': data['menu_item_id'],
+                    'description': data['description'],
+                    'image_url': data['image_url']
+                }]
+            }
+            orders.append(item)
+
+    return orders
