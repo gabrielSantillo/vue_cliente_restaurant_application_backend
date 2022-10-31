@@ -85,8 +85,14 @@ def organize_rated_orders(response):
     return orders
 
 
-def return_a_list(items):
+def match_ids(ids_sent, original_ids):
     ids = []
-    for item in items:
-        ids.append(item['id'])
-    return ids
+    for id in ids_sent:
+        for item_id in original_ids:
+            if(id == item_id['id']):
+                    ids.append(id)
+        
+    if(len(ids) == len(ids_sent)):
+        return True
+    else:
+        return False
