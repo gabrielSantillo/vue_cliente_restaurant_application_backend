@@ -83,3 +83,10 @@ def organize_rated_orders(response):
             orders.append(item)
 
     return orders
+
+
+def return_a_list(items):
+    ids = []
+    for item in items:
+        ids.append(item['id'])
+    return ids
