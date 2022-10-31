@@ -123,7 +123,7 @@ CREATE TABLE `order_menu_item` (
   KEY `order_menu_item_FK_1` (`menu_item_id`),
   CONSTRAINT `order_menu_item_FK` FOREIGN KEY (`order_id`) REFERENCES `order_table` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_menu_item_FK_1` FOREIGN KEY (`menu_item_id`) REFERENCES `menu_item` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,7 +132,7 @@ CREATE TABLE `order_menu_item` (
 
 LOCK TABLES `order_menu_item` WRITE;
 /*!40000 ALTER TABLE `order_menu_item` DISABLE KEYS */;
-INSERT INTO `order_menu_item` VALUES (1,5,3),(2,5,5),(3,9,3),(4,9,5),(5,10,1);
+INSERT INTO `order_menu_item` VALUES (1,5,3),(2,5,5),(3,9,3),(4,9,5),(5,10,1),(10,15,1);
 /*!40000 ALTER TABLE `order_menu_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -149,8 +149,9 @@ CREATE TABLE `order_rating` (
   `rate` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `order_rating_un` (`order_table_id`),
-  CONSTRAINT `order_rating_FK_2` FOREIGN KEY (`order_table_id`) REFERENCES `order_table` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+  CONSTRAINT `order_rating_FK_2` FOREIGN KEY (`order_table_id`) REFERENCES `order_table` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_rating_check` CHECK (`rate` >= 1 and `rate` <= 5)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -159,7 +160,7 @@ CREATE TABLE `order_rating` (
 
 LOCK TABLES `order_rating` WRITE;
 /*!40000 ALTER TABLE `order_rating` DISABLE KEYS */;
-INSERT INTO `order_rating` VALUES (8,5,3);
+INSERT INTO `order_rating` VALUES (10,5,4);
 /*!40000 ALTER TABLE `order_rating` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -182,7 +183,7 @@ CREATE TABLE `order_table` (
   KEY `order_FK_1` (`restaurant_id`),
   CONSTRAINT `order_FK` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `order_FK_1` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -191,7 +192,7 @@ CREATE TABLE `order_table` (
 
 LOCK TABLES `order_table` WRITE;
 /*!40000 ALTER TABLE `order_table` DISABLE KEYS */;
-INSERT INTO `order_table` VALUES (2,25,7,0,0,'2022-10-24 16:19:07'),(3,25,7,0,0,'2022-10-24 16:29:00'),(4,25,7,0,1,'2022-10-24 16:37:35'),(5,25,7,1,1,'2022-10-24 16:39:37'),(6,25,7,0,0,'2022-10-29 14:09:32'),(7,25,7,0,0,'2022-10-29 14:16:45'),(8,25,7,0,0,'2022-10-29 14:18:33'),(9,25,7,0,0,'2022-10-29 14:23:16'),(10,25,5,0,0,'2022-10-30 13:49:44');
+INSERT INTO `order_table` VALUES (2,25,7,0,0,'2022-10-24 16:19:07'),(3,25,7,0,0,'2022-10-24 16:29:00'),(4,25,7,0,1,'2022-10-24 16:37:35'),(5,25,7,1,1,'2022-10-24 16:39:37'),(6,25,7,0,0,'2022-10-29 14:09:32'),(7,25,7,0,0,'2022-10-29 14:16:45'),(8,25,7,0,0,'2022-10-29 14:18:33'),(9,25,7,0,0,'2022-10-29 14:23:16'),(10,25,5,0,0,'2022-10-30 13:49:44'),(11,25,5,0,0,'2022-10-30 20:38:07'),(12,25,5,0,0,'2022-10-30 20:39:05'),(13,25,5,0,0,'2022-10-30 20:39:25'),(14,25,5,0,0,'2022-10-30 20:40:00'),(15,25,5,0,0,'2022-10-30 20:43:34'),(16,25,5,0,0,'2022-10-30 20:44:40'),(17,25,5,0,0,'2022-10-30 20:47:55'),(18,25,5,0,0,'2022-10-30 20:49:50');
 /*!40000 ALTER TABLE `order_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -998,6 +999,27 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_menu_items_by_restaurant_id` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_menu_items_by_restaurant_id`(restaurant_id_input int unsigned)
+begin
+	select mi.id 
+	from menu_item mi
+	where mi.restaurant_id = restaurant_id_input;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `get_menu_item_by_token` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1173,4 +1195,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-30 19:38:48
+-- Dump completed on 2022-10-31 11:43:18
