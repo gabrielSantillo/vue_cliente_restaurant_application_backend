@@ -25,6 +25,7 @@ def post():
     # otherwise, return a db failure response
     else:
         return make_response(json.dumps('Sorry, an error has occurred.'), 500)
+        
 # delete request for the endpoint client-login
 def delete():
     # verify if the data expected to be sent was sent indeed
