@@ -14,10 +14,6 @@ def post():
     if(is_valid != None):
         return make_response(json.dumps(is_valid, default=str), 400)
 
-    # calling a procedure that returns every menu item id that belgons to the restaurant id sent
-    restaurant_menu_items = run_statement('CALL get_menu_items_by_restaurant_id(?)', [request.json.get('restaurant_id')])
-
-
     # grabbing the value of the data sent as menu_items in the request
     items = request.json.get('menu_items')
 
