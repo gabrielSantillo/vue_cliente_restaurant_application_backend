@@ -53,10 +53,10 @@ def patch():
 
     results = run_statement('CALL edit_rated_order(?,?,?)', [request.json.get('order_id'), request.json.get('rate'), request.headers.get('token')])
 
-    if(type(results) == list and results[0][0] == 1):
-        return make_response(json.dumps(results[0][0], default=str), 200)
-    elif(type(results) == list and results[0][0] == 0):
-        return make_response(json.dumps('Bad request.'), 400)
+    if(type(results) == list and results[0]['row_updated'] == 1):
+        return make_response(json.dumps(results[0], default=str), 200)
+    elif(type(results) == list and results[0]['row_updated'] == 0):
+        return make_response(json.dumps(results[0], default=str), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
 
@@ -71,9 +71,9 @@ def delete():
 
     results = run_statement('CALL delete_rated_order(?,?)', [request.json.get('order_id'), request.headers.get('token')])
 
-    if(type(results) == list and results[0][0] == 1):
-        return make_response(json.dumps(results[0][0], default=str), 200)
-    elif(type(results) == list and results[0][0] == 0):
-        return make_response(json.dumps("Bad request."), 400)
+    if(type(results) == list and results[0]['row_updated'] == 1):
+        return make_response(json.dumps(results[0], default=str), 200)
+    elif(type(results) == list and results[0]['row_updated'] == 0):
+        return make_response(json.dumps(results[0], default=str), 400)
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
