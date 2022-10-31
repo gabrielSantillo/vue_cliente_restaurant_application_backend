@@ -13,17 +13,20 @@ def post():
     if (is_valid != None):
         return make_response(json.dumps(is_valid, default=str), 400)
 
-    # generating a ramdom token
+    # generating a random token
     token = secrets.token_hex(nbytes=None)
     # generating a random salt
     salt = uuid4().hex
-    # calling the procedure that add a clients in the db
+    # calling the procedure that add a client in the db
     results = run_statement('CALL add_client(?,?,?,?,?,?,?,?)', [request.json.get('email'), request.json.get('first_name'), request.json.get(
         'last_name'), request.json.get('image_url'), request.json.get('username'), request.json.get('password'), token, salt])
 
     # if the results is a list and the length of the result is different than zero, return a success response
     if (type(results) == list and len(results) != 0):
         return make_response(json.dumps(results[0], default=str), 200)
+    # if the results starts with "Duplicate entry" send this information to the client
+    elif(results.startswith('Duplicate entry')):
+        return make_response(json.dumps(results, default=str), 400)
     # otherwise, return a db failure response
     else:
         return make_response(json.dumps("Sorry, an error has occurred."), 500)
@@ -61,12 +64,12 @@ def patch():
     if(type(client_info) != list or len(client_info) != 1):
         return make_response(json.dumps(client_info, default=str), 400)
  
-    # calling a function that will fill all information that was not sent by the client in the
+    # calling a function that will fill all information that was not sent by the client in the request
     # to return all client info filled out
     update_info_client = check_data_sent(request.json, client_info[0],
       ['email', 'first_name', 'last_name', 'image_url', 'username', 'password'])
 
-    # calling a procedure that edit the clients info
+    # calling a procedure that edit the client's info
     results = run_statement('CALL edit_client(?,?,?,?,?,?,?)',
                             [update_info_client['email'], update_info_client['first_name'],
                              update_info_client['last_name'], update_info_client['image_url'], update_info_client['username'], update_info_client['password'], request.headers.get('token')])
